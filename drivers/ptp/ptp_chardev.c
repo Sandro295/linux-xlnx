@@ -461,7 +461,12 @@ ssize_t ptp_read(struct posix_clock *pc,
 	if (mutex_lock_interruptible(&ptp->tsevq_mux))
 		return -ERESTARTSYS;
 
-	if (wait_event_interruptible(ptp->tsev_wq,
+	if (rdflags & O_NONBLOCK) {
+		if(queue_cnt(queue) == 0) {
+			mutex_unlock(&ptp->tsevq_mux);
+			return -EAGAIN;
+		}
+	} else if (wait_event_interruptible(ptp->tsev_wq,
 				     ptp->defunct || queue_cnt(queue))) {
 		mutex_unlock(&ptp->tsevq_mux);
 		return -ERESTARTSYS;

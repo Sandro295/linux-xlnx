@@ -1429,7 +1429,7 @@ static int cdns_i2c_probe(struct platform_device *pdev)
 	id->adap.dev.of_node = pdev->dev.of_node;
 	id->adap.algo = &cdns_i2c_algo;
 	id->adap.timeout = CDNS_I2C_TIMEOUT;
-	id->adap.retries = 3;		/* Default retry value. */
+	id->adap.retries = 10;		/* Default retry value. */
 	id->adap.algo_data = id;
 	id->adap.dev.parent = &pdev->dev;
 	init_completion(&id->xfer_done);
