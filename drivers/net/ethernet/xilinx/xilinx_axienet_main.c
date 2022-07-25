@@ -1742,6 +1742,7 @@ static int axienet_open(struct net_device *ndev)
 
 	if (ret < 0)
 		return ret;
+	dev_err(lp->dev, "phy dbg patch is applied\n");
 
 	if (lp->phy_node) {
 		phydev = of_phy_connect(lp->ndev, lp->phy_node,
