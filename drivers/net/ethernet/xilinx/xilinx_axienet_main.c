@@ -663,10 +663,6 @@ static int axienet_device_reset(struct net_device *ndev)
 					 XAXIFIFO_TXTS_RESET_MASK);
 			axienet_rxts_iow(lp, XAXIFIFO_TXTS_SRR,
 					 XAXIFIFO_TXTS_RESET_MASK);
-			axienet_txts_iow(lp, XAXIFIFO_TXTS_RDFR,
-					 XAXIFIFO_TXTS_RESET_MASK);
-			axienet_txts_iow(lp, XAXIFIFO_TXTS_SRR,
-					 XAXIFIFO_TXTS_RESET_MASK);
 #endif
 	}
 
@@ -1087,9 +1083,7 @@ static int axienet_create_tsheader(u8 *buf, u8 msg_type,
 	cur_p = &q->tx_bd_v[q->tx_bd_tail];
 #endif
 
-	if ((msg_type & 0xF) == TX_TS_OP_NOOP) {
-		buf[0] = TX_TS_OP_NOOP;
-	} else if ((msg_type & 0xF) == TX_TS_OP_ONESTEP) {
+	if ((msg_type & 0xF) == TX_TS_OP_ONESTEP) {
 		if (lp->axienet_config->mactype == XAXIENET_MRMAC) {
 			/* For Sync Packet */
 			if ((msg_type & 0xF0) == MSG_TYPE_SYNC_FLAG) {
@@ -1214,7 +1208,7 @@ static int axienet_skb_tstsmp(struct sk_buff **__skb, struct axienet_dma_q *q,
 
 		tmp = skb_push(skb, AXIENET_TS_HEADER_LEN);
 		memset(tmp, 0, AXIENET_TS_HEADER_LEN);
-		cur_p->ptp_tx_ts_tag++;
+		cur_p->ptp_tx_ts_tag = (cur_p->ptp_tx_ts_tag + 1) &	~XAXIFIFO_TXTS_TAG_MASK;
 
 		if (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) {
 			if (lp->tstamp_config.tx_type ==
